@@ -13,9 +13,9 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (psNroTelefone N
     BEGIN
     FOR msg IN (
 
-      SELECT X.SEQLOG,
+      SELECT DISTINCT X.SEQLOG,
              X.TABELA,
-             X.DTAHOREMISSAO,
+             TO_CHAR(X.DTAHOREMISSAO, 'DD/MM/YYYY') DTAHOREMISSAO,
              X.TIPOCARGA,
              X.MENSAGEM,
              X.REPLICACAO
@@ -29,7 +29,8 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (psNroTelefone N
                  '*Data:*%20'       || msg.DTAHOREMISSAO || '%0A' ||
                  '*TipoCarga:*%20'  || msg.TIPOCARGA     || '%0A' ||
                  '*Mensagem:*%20'   || msg.MENSAGEM      || '%0A' ||
-                 '*Replicacao:*%20' || msg.REPLICACAO;
+                 '*Replicacao:*%20' || msg.REPLICACAO    || '%0A' ||
+                 '*Erro em:*%20TB_LOGFALHACARGAMONITOR';
 
         -- Construir a URL
         vUrl := 'http://api.textmebot.com/send.php?recipient=+'||psNroTelefone||'&text=' || REPLACE(vText, ' ','%20') || '&apikey='||psAPIKey; -- Whatsapp 
