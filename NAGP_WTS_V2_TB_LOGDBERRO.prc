@@ -13,7 +13,7 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_TB_LOGDBERRO (psNroTelefone NUMBER, psAP
     BEGIN
     FOR msg IN (
 
-      SELECT Y.DTAHOREVENTO,
+      SELECT DISTINCT TO_CHAR(Y.DTAHOREVENTO, 'DD/MM/YYYY') DTAHOREVENTO,
              Y.USERNAME,
              Y.NLSLANG,
              Y.IPCLIENT,
@@ -22,8 +22,8 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_TB_LOGDBERRO (psNroTelefone NUMBER, psAP
              Y.MODULO,
              Y.IDENTIFIER,
              Y.MSGERRO,
-             Y.ACTION,
-             Y.SQLERRO 
+             Y.ACTION
+             --Y.SQLERRO 
         FROM MONITORPDV.TB_LOGDBERRO Y
     )
     LOOP
@@ -39,7 +39,8 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_TB_LOGDBERRO (psNroTelefone NUMBER, psAP
                  '*Identifier:*%20'  || msg.IDENTIFIER   || '%0A' ||
                  '*MsgErro:*%20'     || msg.MSGERRO      || '%0A' ||
                  '*Action:*%20'      || msg.ACTION       || '%0A' ||
-                 '*SqlErro:*%20'     || msg.SQLERRO;
+                 '*Erro em:*%20TB_LOGDBERRO';
+                 --'*SqlErro:*%20'     || msg.SQLERRO;
 
         -- Construir a URL
         vUrl := 'http://api.textmebot.com/send.php?recipient=+'||psNroTelefone||'&text=' || REPLACE(vText, ' ','%20') || '&apikey='||psAPIKey; -- Whatsapp 
