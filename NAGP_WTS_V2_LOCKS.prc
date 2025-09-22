@@ -65,7 +65,8 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_LOCKS (psNroTelefone NUMBER, psAPIKey VA
                      '*Evento%20de%20espera:*%20' || msg.EVENTO_ESPERA_BLOQUEADO || '%0A' ||
                      '*Evento%20bloqueador:*%20' || msg.EVENTO_BLOQUEADOR|| '%0A%0A' ||
                      
-                     '*NAGP_KILL_SESSION('|| msg.SESSAO_BLOQUEADORA ||',%20'||msg.SERIAL_BLOQUEADORA||',%20'||msg.INST_ID_BLOQUEADORA||')%20Para%20encerrar%20sessao';
+                     '*Para%20encerrar%20sessao:*'|| '%0A' ||
+                     'NAGP_KILL_SESSION('|| msg.SESSAO_BLOQUEADORA ||',%20'||msg.SERIAL_BLOQUEADORA||',%20'||msg.INST_ID_BLOQUEADORA||')';
 
         -- Construir a URL
         vUrl := 'http://api.textmebot.com/send.php?recipient=+'||psNroTelefone||'&text=' || REPLACE(vText, ' ','%20') || '&apikey='||psAPIKey; -- Whatsapp 
