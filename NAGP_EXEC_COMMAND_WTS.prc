@@ -7,8 +7,8 @@ CREATE OR REPLACE PROCEDURE NAGP_EXEC_COMMAND_WTS AS
     
 BEGIN
   
-    FOR cm IN (SELECT FONE, REGEXP_SUBSTR(UPPER(TEXT), '([A-Z0-9_]+ *\([^)]*\))', 1, 1) vSQL, ROWID rid, ID
-                 FROM NAGT_ANSWERS_WTS X
+    FOR cm IN (SELECT FONE, REGEXP_SUBSTR(UPPER(TEXT), '([A-Z0-9_]+ *\([^)]*\))', 1, 1) vSQL, X.ROWID rid, ID
+                 FROM NAGT_ANSWERS_WTS X INNER JOIN NAGT_API_CALL_NUMBERS C ON C.NROTELEFONE = X.FONE -- Corta e só retorna se o numero esta mapeado
                 WHERE TEXT IS NOT NULL
                 ---------------------------------------------------------------------
                 -- Seguranca basica - fiz pra executar somente o que mandar com NAGP_xxxxxx e nao dar merda
