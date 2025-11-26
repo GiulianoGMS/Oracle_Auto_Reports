@@ -12,10 +12,13 @@ BEGIN
                  FROM NAGT_ANSWERS_WTS X INNER JOIN NAGT_API_CALL_NUMBERS C ON C.NROTELEFONE = X.FONE
                 WHERE TEXT IS NOT NULL
                 ---------------------------------------------------------------------
-                -- Seguranca basica - fiz pra executar somente o que mandar com NAG_xxxxxx e nao dar merda
+                -- Seguranca basica - fiz pra executar somente o que mandar com NAGP_xxxxxx e nao dar merda
                 ---------------------------------------------------------------------
                   AND UPPER(TEXT) LIKE '%NAG%'      
-                  AND X.INDPROCESSADO = 'N')
+                  AND X.INDPROCESSADO = 'N'
+                  -- Valida se permite que o nro realize acoes
+                  AND C.PERM_CMD = 'S'
+                  )
     LOOP
     ---------------------------------------------------------------------
     -- Roda o comando que encontrei anteriormente
@@ -40,12 +43,7 @@ BEGIN
        SET X.INDPROCESSADO = 'S'
      WHERE X.ROWID = cm.rid;
           
-    NAGP_WTS_V2_RETURN_CM(cm.ID);
-    UPDATE NAGT_ANSWERS_WTS X
-       SET X.INDRETURN = 'S'
-     WHERE X.ROWID = cm.rid;
-     
-    COMMIT;   
+    NAGP_WTS_V2_RETURN_CM(cm.ID);  
      
     END LOOP;
     
@@ -60,9 +58,5 @@ BEGIN
      WHERE X.ROWID = cm_rid;
     
     NAGP_WTS_V2_RETURN_CM(cm_ID);
-    UPDATE NAGT_ANSWERS_WTS X
-       SET X.INDRETURN = 'S'
-     WHERE X.ROWID = cm_rid;
-    COMMIT;
     
 END;
