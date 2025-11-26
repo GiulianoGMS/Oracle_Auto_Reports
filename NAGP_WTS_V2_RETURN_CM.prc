@@ -15,7 +15,7 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_RETURN_CM (psID NUMBER)
 
       SELECT DISTINCT A.ID, A.FONE, C.NROTELEFONE, C.APIKEY, A.TEXT FULL_COMMAND, B.COMMAND, B.DATE_LOG, SUBSTR(B.ST, 0,300) ST
         FROM NAGT_ANSWERS_WTS A INNER JOIN NAGT_ANSWERS_WTS_LOG B ON A.ID = B.ID
-                                INNER JOIN NAGT_API_CALL_NUMBERS C ON C.TYPE = 'ALL' AND C.STATUS = 'A'
+                                INNER JOIN NAGT_API_CALL_NUMBERS C ON (C.TYPE = 'ALL' OR C.NROTELEFONE = A.FONE) AND C.STATUS = 'A'
                                 WHERE a.ID = psID
                                   AND INDRETURN = 'N'
     )
@@ -38,5 +38,11 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_RETURN_CM (psID NUMBER)
         DBMS_SESSION.SLEEP(10); -- Segura 10 segundos pra nao dar pau na API (nao considerar spam)
       
     END LOOP;
+    
+    UPDATE NAGT_ANSWERS_WTS X
+       SET X.INDRETURN = 'S'
+     WHERE X.ID = psID;
+     
+    COMMIT; 
   
 END;
