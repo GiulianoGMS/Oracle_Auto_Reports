@@ -13,19 +13,27 @@ CREATE OR REPLACE PROCEDURE NAGP_WTS_V2_INVALIDOBJECTS (psNroTelefone NUMBER, ps
     BEGIN
     FOR msg IN (
       
-      SELECT DISTINCT OWNER, OBJECT_NAME, OBJECT_TYPE, CREATED, LAST_DDL_TIME, STATUS
+      SELECT DISTINCT 'NAGUMO PROD' DB, OWNER, OBJECT_NAME, OBJECT_TYPE, CREATED, LAST_DDL_TIME, STATUS
         FROM NAGV_INVALID_OBJECTS
+        
+      UNION ALL
+        
+      SELECT DISTINCT 'DW/BI' DB, OWNER, OBJECT_NAME, OBJECT_TYPE, CREATED, LAST_DDL_TIME, STATUS
+        FROM NAGV_INVALID_OBJECTS_DW
     )
     LOOP
       
         -- Montar o texto da mensagem
         vText := '%F0%9F%9A%A8%20*Report:%20Existem%20objetos%20invalidos%20no%20banco:*%0A%0A' ||
+                 '*Data Base:*%20'     || msg.DB || '%0A' ||
                  '*Owner:*%20'         || msg.OWNER         || '%0A' ||
                  '*Object Name:*%20'   || msg.OBJECT_NAME   || '%0A' ||
                  '*Object Type:*%20'   || msg.OBJECT_TYPE   || '%0A' ||
                  '*Created:*%20'       || msg.CREATED       || '%0A' ||
                  '*Last DDL Time:*%20' || msg.LAST_DDL_TIME || '%0A' ||
-                 '*Status:*%20'        || msg.STATUS;
+                 '*Status:*%20'        || msg.STATUS        || '%0A' || '%0A' ||
+                 '*Para recompilar objs:*%20'|| '%0A' ||
+                 'NAGP_RECOMPILA_OBJ()';
 
         -- Construir a URL
         vUrl := 'http://api.textmebot.com/send.php?recipient=+'||psNroTelefone||'&text=' || REPLACE(vText, ' ','%20') || '&apikey='||psAPIKey; -- Whatsapp 
