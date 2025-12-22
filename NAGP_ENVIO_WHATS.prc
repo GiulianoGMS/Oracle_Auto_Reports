@@ -9,6 +9,8 @@ BEGIN
       NAGP_WTS_V2_LOCKS                   (bs_all.NROTELEFONE, bs_all.APIKEY);
       NAGP_WTS_V2_TB_LOGDBERRO            (bs_all.NROTELEFONE, bs_all.APIKEY);
       NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (bs_all.NROTELEFONE, bs_all.APIKEY);
+      NAGP_WTS_V2_TB_ULTCARGAMONITOR      (bs_all.Nrotelefone, bs_all.APIKEY);
+      NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_all.Nrotelefone, bs_all.APIKEY);
 
     END LOOP;
 
@@ -17,6 +19,8 @@ BEGIN
 
       NAGP_WTS_V2_TB_LOGDBERRO            (bs_pdv.NROTELEFONE, bs_pdv.APIKEY);
       NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (bs_pdv.NROTELEFONE, bs_pdv.APIKEY);
+      NAGP_WTS_V2_TB_ULTCARGAMONITOR      (bs_pdv.NROTELEFONE, bs_pdv.APIKEY);
+      NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_pdv.Nrotelefone, bs_pdv.APIKEY);
 
     END LOOP;
 
