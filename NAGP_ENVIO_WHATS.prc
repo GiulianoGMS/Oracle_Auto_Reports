@@ -23,5 +23,12 @@ BEGIN
       NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_pdv.Nrotelefone, bs_pdv.APIKEY);
 
     END LOOP;
+    
+   FOR bs_esp IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'ESP')
+    LOOP
+      
+      NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_esp.Nrotelefone, bs_esp.APIKEY);
+
+    END LOOP;
 
 END;
