@@ -24,10 +24,11 @@ BEGIN
 
     END LOOP;
     
-   FOR bs_esp IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'ESP')
+   FOR bs_esp IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE IN ('ESP', 'SD'))
     LOOP
       
       NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_esp.Nrotelefone, bs_esp.APIKEY);
+      NAGP_WTS_V2_JOB_RUNFAILURES_ESP     (bs_esp.Nrotelefone, bs_esp.APIKEY);
 
     END LOOP;
 
