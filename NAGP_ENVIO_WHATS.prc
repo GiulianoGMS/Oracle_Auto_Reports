@@ -31,5 +31,11 @@ BEGIN
       NAGP_WTS_V2_JOB_RUNFAILURES_ESP     (bs_esp.Nrotelefone, bs_esp.APIKEY);
 
     END LOOP;
+    
+    FOR bs_BI IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'BI')
+     LOOP
+       
+       NAGP_WTS_V2_ALERTAS_BI             (bs_BI.Nrotelefone, bs_BI.APIKEY);
+     END LOOP;
 
 END;
