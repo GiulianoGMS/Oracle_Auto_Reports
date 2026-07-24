@@ -33,7 +33,7 @@ BEGIN
     
   FOR bs_groups_SD IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'GSD')
      LOOP
-       NAGP_WTS_V2_CONTROLECARGA_PDV      (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
+       NAGP_WTS_V2_CONTROLECARGA_PDV_CTD  (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
        NAGP_WTS_V2_STATUS_EXP_INT_PDV     (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
        NAGP_WTS_V2_ALERTAS_BI             (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
        NAGP_WTS_V2_TB_ULTCARGAMONITOR     (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
@@ -42,5 +42,17 @@ BEGIN
    FOR bs_bot_down IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'CFG')
      LOOP
        NAGP_WTS_V2_ALERTAS_BOT_DOWN       (bs_bot_down.NROTELEFONE, bs_bot_down.Apikey);       
-     END LOOP;   
+     END LOOP;  
+     
+   FOR bs_unous IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'UNOUS')
+     LOOP
+      NAGP_WTS_V2_LOG_API_UNOUS      (bs_unous.NROTELEFONE, bs_unous.APIKEY);
+     END LOOP;
+     
+   -- Marca como processado
+        UPDATE NAGT_LOG_API_UNOUS
+           SET INDLOGPROCESSADO = 'S'
+         WHERE INDLOGPROCESSADO = 'N';
+         
+     COMMIT;
 END;
