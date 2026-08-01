@@ -1,5 +1,5 @@
 CREATE OR REPLACE PROCEDURE NAGP_REG_ANSWER_WTS (
-    psNumeroFone NUMBER,
+    psNumeroFone VARCHAR2,
     psTexto      VARCHAR2
 ) AS
 BEGIN
