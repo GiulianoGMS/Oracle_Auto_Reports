@@ -1,17 +1,17 @@
 CREATE OR REPLACE PROCEDURE NAGP_ENVIO_WHATS AS
 
 BEGIN
-  FOR bs_all IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'ALL')
+  FOR bs_all IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'GERP')
     LOOP
-      NAGP_WTS_V2_INVALIDOBJECTS          (bs_all.NROTELEFONE, bs_all.APIKEY);
-      NAGP_WTS_V2_JOB_RUNFAILURES         (bs_all.NROTELEFONE, bs_all.APIKEY);
-      NAGP_WTS_V2_LOCKS                   (bs_all.NROTELEFONE, bs_all.APIKEY);
-      NAGP_WTS_V2_TB_LOGDBERRO            (bs_all.NROTELEFONE, bs_all.APIKEY);
-      NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (bs_all.NROTELEFONE, bs_all.APIKEY);
-      NAGP_WTS_V2_TB_ULTCARGAMONITOR      (bs_all.Nrotelefone, bs_all.APIKEY);
-      NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_all.Nrotelefone, bs_all.APIKEY);
-      NAGP_WTS_V2_ALERTAS_BOT_DOWN        (bs_all.Nrotelefone, bs_all.APIKEY);
-      NAGP_WTS_V2_LONGTIME_SESSION        (bs_all.Nrotelefone, bs_all.APIKEY, 'All');
+      NAGP_WTS_V2_INVALIDOBJECTS          (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_JOB_RUNFAILURES         (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_LOCKS                   (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_TB_LOGDBERRO            (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_TB_LOGFALHACARGAMONITOR (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_TB_ULTCARGAMONITOR      (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_STATUS_EXP_INT_PDV      (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_ALERTAS_BOT_DOWN        (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_LONGTIME_SESSION        (bs_all.Group_Id, bs_all.APIKEY, 'All');
     END LOOP;
 
   FOR bs_pdv IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'PDV')
