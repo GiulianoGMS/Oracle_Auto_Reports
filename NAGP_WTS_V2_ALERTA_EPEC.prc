@@ -11,6 +11,7 @@ AS
     vdEpecAntiga    DATE;
     vHora           NUMBER;
     vMin            NUMBER;
+    vdEpecMaisAntiga DATE;
 BEGIN
 
     /*
@@ -27,68 +28,112 @@ BEGIN
            vMin
       FROM DUAL;
 
-    IF vHora IN (8,15,16)
+    IF vHora IN (8)
        AND vMin BETWEEN 0 AND 2
     THEN
 
-        SELECT COUNT(1),
-               MIN(N.DTAEMISSAO)
-          INTO vnQtdEpec,
-               vdEpecAntiga
-          FROM MLFV_BASENFE N
-         WHERE N.STATUSNFE NOT IN (4,7,8)
-           AND EXISTS (
-                SELECT 1
-                  FROM MFL_NFELOG A
-                 WHERE A.SEQNOTAFISCAL = N.SEQNOTAFISCAL
-                   AND UPPER(A.DESCRICAO) LIKE '%EPEC%'
-           )
-           AND NOT EXISTS (
-                SELECT 1
-                  FROM MFL_NFELOG B
-                 WHERE B.SEQNOTAFISCAL = N.SEQNOTAFISCAL
-                   AND UPPER(B.DESCRICAO) LIKE '%AUTORIZ%'
-           )
-           AND N.DTAEMISSAO >= SYSDATE - 20;
+    FOR MSG IN (
+        WITH BASE AS (
+            SELECT N.DTAEMISSAO,
+                   N.NROEMPRESA
+              FROM MLFV_BASENFE N
+             WHERE N.STATUSNFE NOT IN (4,7,8)
+               AND EXISTS (
+                   SELECT 1
+                     FROM MFL_NFELOG A
+                    WHERE A.SEQNOTAFISCAL = N.SEQNOTAFISCAL
+                      AND UPPER(A.DESCRICAO) LIKE '%EPEC%'
+               )
+               AND NOT EXISTS (
+                   SELECT 1
+                     FROM MFL_NFELOG B
+                    WHERE B.SEQNOTAFISCAL = N.SEQNOTAFISCAL
+                      AND UPPER(B.DESCRICAO) LIKE '%AUTORIZ%'
+               )
+               AND N.DTAEMISSAO >= SYSDATE - 30
+        ),
+        RESUMO AS (
+            SELECT COUNT(1) QTD_EPEC,
+                   MIN(DTAEMISSAO) DTA_EPEC_MAIS_ANTIGA
+              FROM BASE
+        ),
+        DETALHE AS (
+            SELECT DTAEMISSAO,
+                   NROEMPRESA,
+                   COUNT(1) QTD
+              FROM BASE
+             GROUP BY DTAEMISSAO, NROEMPRESA
+        )
+        SELECT R.QTD_EPEC,
+               R.DTA_EPEC_MAIS_ANTIGA,
+               D.DTAEMISSAO,
+               D.NROEMPRESA,
+               D.QTD
+          FROM RESUMO R
+          LEFT JOIN DETALHE D ON 1 = 1
+         ORDER BY D.DTAEMISSAO,
+                  D.NROEMPRESA
+    )
+    LOOP
 
-        /*
-          Envia se:
-            - houver mais de 300 EPECs
-            OU
-            - o EPEC mais antigo tiver mais de 3 dias
-        */
+        vnQtdEpec := MSG.QTD_EPEC;
+        vdEpecMaisAntiga := MSG.DTA_EPEC_MAIS_ANTIGA;
+
         IF vnQtdEpec > 300
-           OR vdEpecAntiga < SYSDATE - 3
+           OR vdEpecMaisAntiga < SYSDATE - 3
         THEN
 
-          VTEXT := '%E2%9A%A0%EF%B8%8F%20*Alerta%20EPECs%20Pendentes:*%0A%0A' ||
+            IF VTEXT IS NULL THEN
 
-         '%E2%80%A2%20*Pendentes:*%20' ||
-         TO_CHAR(vnQtdEpec) ||
-         '%0A' ||
+                VTEXT :=
+                    '%E2%8F%B3%20*Alerta%20EPEC%20Pendentes:*%0A%0A' ||
+                    '%E2%80%A2%20*Pendentes:*%20' ||
+                    vnQtdEpec ||
+                    '%0A' ||
+                    '%E2%80%A2%20*Mais%20antiga:*%20' ||
+                    TO_CHAR(vdEpecMaisAntiga, 'DD/MM/YYYY');
 
-         '%E2%80%A2%20*Mais%20antiga:*%20' ||
-         TO_CHAR(vdEpecAntiga, 'DD/MM/YYYY') ||
-         '%0A' ||
+                IF vdEpecMaisAntiga < SYSDATE - 3 THEN
+                    VTEXT := VTEXT ||
+                             '%0A' ||
+                             '%E2%80%A2%20*Persistindo%20h%C3%A1:*%20' ||
+                             TRUNC(SYSDATE - vdEpecMaisAntiga) ||
+                             '%20dias';
+                END IF;
 
-         '%E2%80%A2%20*Persistindo%20h%C3%A1:*%20' ||
-         TO_CHAR(TRUNC(SYSDATE - vdEpecAntiga)) ||
-         '%20dias';
+                VTEXT := VTEXT ||
+                         '%0A%0A*Detalhamento:*';
 
-            vUrl := 'http://api.textmebot.com/send.php?recipient=+' ||
-                    psNroTelefone ||
-                    '&text=' ||
-                    VTEXT ||
-                    '&apikey=' ||
-                    psAPIKey;
+            END IF;
 
-            SELECT UTL_HTTP.REQUEST(VURL)
-              INTO vnLixo
-              FROM DUAL;
+            IF MSG.DTAEMISSAO IS NOT NULL THEN
 
-            DBMS_SESSION.SLEEP(10);
+                VTEXT := VTEXT ||
+                         '%0A%E2%80%A2%20' ||
+                         TO_CHAR(MSG.DTAEMISSAO, 'DD/MM/YYYY') ||
+                         '%20-%20*Loja%20' ||
+                         TO_CHAR(MSG.NROEMPRESA) ||
+                         ':*%20' ||
+                         MSG.QTD;
+
+            END IF;
 
         END IF;
+
+    END LOOP;
+
+
+    IF VTEXT IS NOT NULL THEN
+
+        vUrl := 'http://api.textmebot.com/send.php?recipient=+'||psNroTelefone||'&text='||VTEXT ||'&apikey='||psAPIKey;
+
+        SELECT UTL_HTTP.REQUEST(VURL)
+          INTO vnLixo
+          FROM DUAL;
+
+        DBMS_SESSION.SLEEP(10);
+
+    END IF;
 
     END IF;
 
