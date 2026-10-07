@@ -13,6 +13,7 @@ BEGIN
       NAGP_WTS_V2_ALERTAS_BOT_DOWN        (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_ALERTAS_BI              (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_ALERTAS_SEFAZ           (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_ALERTA_EPEC             (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_LONGTIME_SESSION        (bs_all.Group_Id, bs_all.APIKEY, 'All');
     END LOOP;
 
@@ -41,15 +42,25 @@ BEGIN
        NAGP_WTS_V2_TB_ULTCARGAMONITOR     (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
        NAGP_WTS_V2_ALERTAS_SEFAZ          (bs_groups_SD.Group_Id, bs_groups_SD.Apikey);
      END LOOP;
+  
+  FOR bs_groups_SD2 IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'GSD2')
+     LOOP
+       NAGP_WTS_V2_ALERTA_NF_REJ          (bs_groups_SD2.Group_Id, bs_groups_SD2.Apikey);
+     END LOOP;
+    
+  FOR bs_bot_auto IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'AUTO')
+     LOOP
+       NAGP_WTS_V2_STATUS_EXP_INT_PDV     (bs_bot_auto.NROTELEFONE, bs_bot_auto.Apikey);       
+     END LOOP;  
      
-   FOR bs_bot_down IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'CFG')
+  FOR bs_bot_down IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'CFG')
      LOOP
        NAGP_WTS_V2_ALERTAS_BOT_DOWN       (bs_bot_down.NROTELEFONE, bs_bot_down.Apikey);       
      END LOOP;  
      
-   FOR bs_unous IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'UNOUS')
+  FOR bs_unous IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'UNOUS')
      LOOP
-      NAGP_WTS_V2_LOG_API_UNOUS      (bs_unous.NROTELEFONE, bs_unous.APIKEY);
+      NAGP_WTS_V2_LOG_API_UNOUS           (bs_unous.NROTELEFONE, bs_unous.APIKEY);
      END LOOP;
      
    -- Marca como processado
