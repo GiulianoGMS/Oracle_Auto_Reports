@@ -14,8 +14,16 @@ BEGIN
       NAGP_WTS_V2_ALERTAS_BI              (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_ALERTAS_SEFAZ           (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_ALERTA_EPEC             (bs_all.Group_Id, bs_all.APIKEY);
+      NAGP_WTS_V2_LOG_API_SEAL            (bs_all.Group_Id, bs_all.APIKEY);
       NAGP_WTS_V2_LONGTIME_SESSION        (bs_all.Group_Id, bs_all.APIKEY, 'All');
     END LOOP;
+    
+  -- Marca como processado (SEAL)
+        UPDATE NAGT_LOG_API_SEAL
+           SET INDLOGPROCESSADO = 'S'
+         WHERE INDLOGPROCESSADO = 'N';
+         
+         COMMIT;
 
   FOR bs_pdv IN (SELECT * FROM NAGT_API_CALL_NUMBERS X WHERE STATUS = 'A' AND TYPE = 'PDV')
     LOOP
